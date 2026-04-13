@@ -1,0 +1,28 @@
+# DNS over HTTPS with JWT Authorization + Enclave (AES-256-GCM encryption)
+https://.:8443 {
+    jwt_edns {
+        algorithm eddsa
+        key_file public.pem
+    }
+    etcd_crypto {
+        endpoint http://localhost:2379
+        path /skydns
+        aes_key_file aes.key
+    }
+    tls cert.pem key.pem
+    log
+}
+
+# DNS over UDP with JWT Authorization + Enclave (AES-256-GCM encryption)
+.:1053 {
+    jwt_edns {
+        algorithm eddsa
+        key_file public.pem
+    }
+    etcd_crypto {
+        endpoint http://localhost:2379
+        path /skydns
+        aes_key_file aes.key
+    }
+    log
+}

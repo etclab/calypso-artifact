@@ -1,0 +1,12 @@
+# etcd configuration for calypso
+name: 'default'
+data-dir: /tmp/etcd-data-calypso
+listen-client-urls: http://127.0.0.1:2379
+advertise-client-urls: http://127.0.0.1:2379
+listen-peer-urls: http://127.0.0.1:2380
+initial-advertise-peer-urls: http://127.0.0.1:2380
+initial-cluster: 'default=http://127.0.0.1:2380'
+initial-cluster-token: 'etcd-cluster-calypso'
+initial-cluster-state: 'new'
+log-level: info
+logger: zap

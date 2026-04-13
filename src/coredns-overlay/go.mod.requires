@@ -1,0 +1,5 @@
+# Direct module requirements added to upstream CoreDNS go.mod by use-vendored.sh.
+# One module@version per line; lines beginning with `#` are ignored.
+github.com/etclab/calypso@v0.0.0-00010101000000-000000000000
+github.com/etclab/ncircl@v0.0.0-20251007164514-eab40c7266d7
+github.com/golang-jwt/jwt/v5@v5.3.0

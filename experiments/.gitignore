@@ -1,0 +1,30 @@
+# Fetched repositories
+repos/
+
+# Built binaries
+build/
+
+# Runtime files in approaches
+approaches/*/*.pem
+approaches/*/*.key
+approaches/*/*.crt
+approaches/*/*.csr
+approaches/*/*.srl
+approaches/*/*.pid
+approaches/*/*.log
+approaches/*/ca-*
+approaches/*/cert.*
+approaches/*/key.*
+
+# Temporary etcd data
+/tmp/etcd-data-*/
+
+# OS files
+.DS_Store
+
+# Keys directory
+approaches/wkd-ibe/keys/
+
+# Authority files
+approaches/**/*.bin
+approaches/**/*.key

@@ -1,0 +1,86 @@
+#!/usr/bin/env gnuplot
+#
+# Plot CDF comparison for multiple DNS latency approaches
+#
+# Usage: gnuplot -c scripts/plot/plot-cdf-compare.gpi <config_file>
+#
+# Config file format: output.png "dat1" "label1" "dat2" "label2" ...
+#
+
+if (ARGC < 1) {
+    print "Usage: gnuplot -c scripts/plot/plot-cdf-compare.gpi <config_file>"
+    exit
+}
+
+config_file = ARG1
+config_line = system(sprintf("cat %s", config_file))
+
+# Parse the config line to extract output file and arguments
+output_file = word(config_line, 1)
+
+# Load style
+load 'scripts/plot/style.gpi'
+
+# Output to PNG
+set terminal png size 800,560 enhanced
+set output output_file
+
+# Grid and axes
+set grid ytics
+set tics nomirror
+
+# Axis labels and ranges
+set xlabel "Latency (ms)"
+set ylabel "CDF"
+set yrange [-0.05:1.05]
+
+# Calculate number of plots from config line
+num_plots = (words(config_line) - 1) / 2
+
+# Calculate dynamic x-axis range based on P99 (to avoid outlier distortion)
+# Find max P99 across all data files and use 120% for padding
+max_latency = 0
+do for [i=1:num_plots] {
+    word_idx = (i-1)*2 + 2
+    dat_file = word(config_line, word_idx)
+    # Calculate P99 directly from sorted .dat file
+    N = system(sprintf("wc -l < %s", dat_file))
+    p99_line = int(N * 0.99)
+    file_p99 = system(sprintf("sed -n '%dp' %s", p99_line, dat_file))
+    if (file_p99 + 0 > max_latency) {
+        max_latency = file_p99 + 0
+    }
+}
+set xrange [0:max_latency * 1.2]
+
+# Key position
+set key bottom right
+
+# Build plot command dynamically based on number of plots
+plot_cmd = "plot "
+
+do for [i=1:num_plots] {
+    word_idx = (i-1)*2 + 2
+    dat_file = word(config_line, word_idx)
+    label = word(config_line, word_idx + 1)
+
+    # Count lines for this file
+    N = system(sprintf("wc -l < %s", dat_file))
+
+    # Select dashtype based on index
+    if (i == 1) { dashtype_str = "" }
+    else if (i == 2) { dashtype_str = " dashtype '.'" }
+    else if (i == 3) { dashtype_str = " dashtype '-'" }
+    else if (i == 4) { dashtype_str = " dashtype '_'" }
+    else if (i == 5) { dashtype_str = " dashtype (5,5,10,5)" }
+    else if (i == 6) { dashtype_str = " dashtype (10,5)" }
+    else { dashtype_str = " dashtype (2,2)" }
+
+    # Add to plot command
+    if (i > 1) { plot_cmd = plot_cmd . ", " }
+    plot_cmd = plot_cmd . sprintf("'%s' using 1:(($0+1.0) / %s) title '%s' with lines linestyle %d linewidth 4%s", \
+                                   dat_file, N, label, i, dashtype_str)
+}
+
+# Execute the plot command
+eval plot_cmd

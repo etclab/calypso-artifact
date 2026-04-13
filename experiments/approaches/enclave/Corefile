@@ -1,0 +1,20 @@
+# DNS over HTTPS with Enclave (AES-256-GCM encryption)
+https://.:8443 {
+    etcd_crypto {
+        endpoint http://localhost:2379
+        path /skydns
+        aes_key_file aes.key
+    }
+    tls cert.pem key.pem
+    log
+}
+
+# DNS over UDP with Enclave (AES-256-GCM encryption)
+.:1053 {
+    etcd_crypto {
+        endpoint http://localhost:2379
+        path /skydns
+        aes_key_file aes.key
+    }
+    log
+}

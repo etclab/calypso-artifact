@@ -1,0 +1,20 @@
+# DNS over HTTPS with Calypso (Zero Trust DNS - client-side decryption only)
+https://.:8443 {
+    etcd_calypso {
+        endpoint http://localhost:2379
+        path /skydns
+        calypso_path_prefix skydns-calypso
+    }
+    tls cert.pem key.pem
+    log
+}
+
+# DNS over UDP with Calypso (Zero Trust DNS - client-side decryption only)
+.:1053 {
+    etcd_calypso {
+        endpoint http://localhost:2379
+        path /skydns
+        calypso_path_prefix skydns-calypso
+    }
+    log
+}

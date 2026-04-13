@@ -1,0 +1,49 @@
+#!/usr/bin/env gnuplot
+#
+# Plot CDF for a single approach DNS latency benchmark
+#
+# Usage: gnuplot -c scripts/plot/plot-cdf.gpi <input.dat> <output.png> [title]
+#
+# Example: gnuplot -c scripts/plot/plot-cdf.gpi results/plain.dat results/plain-cdf.png "Plain DoH"
+#
+
+if (ARGC < 2) {
+    print "Usage: gnuplot -c scripts/plot/plot-cdf.gpi <input.dat> <output.png> [title]"
+    exit
+}
+
+input_file = ARG1
+output_file = ARG2
+plot_title = (ARGC >= 3) ? ARG3 : "DNS Latency"
+
+# Load style
+load 'scripts/plot/style.gpi'
+
+# Output to PNG
+set terminal png size 800,560 enhanced
+set output output_file
+
+# Grid and axes
+set grid ytics
+set tics nomirror
+
+# Axis labels and ranges
+set xlabel "Latency (ms)"
+set ylabel "CDF"
+set yrange [-0.05:1.05]
+
+# Calculate dynamic x-axis range based on P99 (to avoid outlier distortion)
+# Calculate P99 directly from sorted .dat file
+N = system(sprintf("wc -l < %s", input_file))
+p99_line = int(N * 0.99)
+p99_latency = system(sprintf("sed -n '%dp' %s", p99_line, input_file))
+set xrange [0:p99_latency * 1.2]
+
+# Key position
+set key bottom right
+
+# Count lines in data file
+N = system(sprintf("wc -l < %s", input_file))
+
+# Plot CDF
+plot input_file using 1:(($0+1.0) / N) title plot_title with lines linestyle 1 linewidth 4

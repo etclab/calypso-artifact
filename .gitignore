@@ -1,0 +1,30 @@
+# Generated state — see experiments/.gitignore for the per-experiment patterns
+# (repos/, build/, runtime keys/certs/logs).
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Editor / IDE
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+
+# Python bytecode (glue/ scripts)
+__pycache__/
+*.pyc
+
+# Local benchmark dumps
+/tmp-bench-*.txt
+*.bench.txt
+
+# LaTeX intermediates
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz

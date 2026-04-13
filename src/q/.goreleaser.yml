@@ -1,0 +1,82 @@
+version: 2
+
+before:
+  hooks:
+    - go mod download
+
+builds:
+  - env:
+      - CGO_ENABLED=0
+    goos:
+      - linux
+      - darwin
+      - freebsd
+      - windows
+    goarch:
+      - amd64
+      - arm64
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+nfpms:
+  - id: nfpm-default
+    package_name: q
+    file_name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    vendor: Nate Sales
+    homepage: https://natesales.net/
+    maintainer: Nate Sales <nate@natesales.net>
+    description: A tiny CLI DNS client library with support for UDP, TCP, DoT, DoH, and DoQ.
+    license: GNU GPL-3.0
+    section: utils
+    priority: extra
+    formats:
+      - deb
+      - rpm
+
+publishers:
+  - name: fury.io
+    ids:
+      - nfpm-default
+    dir: "{{ dir .ArtifactPath }}"
+    cmd: curl -s -F package=@{{ .ArtifactName }} https://{{ .Env.FURY_TOKEN }}@push.fury.io/natesales/
+
+brews:
+  - name: q
+    homepage: https://github.com/natesales/repo
+    repository:
+      owner: natesales
+      name: repo
+
+dockers:
+  - image_templates:
+      - "ghcr.io/natesales/q:{{ .Version }}-amd64"
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/amd64
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.licenses=GPL-3.0-only
+  - image_templates:
+      - "ghcr.io/natesales/q:{{ .Version }}-arm64"
+    use: buildx
+    build_flag_templates:
+      - --platform=linux/arm64
+      - --label=org.opencontainers.image.version={{ .Version }}
+      - --label=org.opencontainers.image.revision={{ .FullCommit }}
+      - --label=org.opencontainers.image.licenses=GPL-3.0-only
+    goarch: arm64
+
+docker_manifests:
+  - name_template: "ghcr.io/natesales/q:{{ .Version }}"
+    image_templates:
+      - "ghcr.io/natesales/q:{{ .Version }}-amd64"
+      - "ghcr.io/natesales/q:{{ .Version }}-arm64"
+  - name_template: "ghcr.io/natesales/q:latest"
+    image_templates:
+      - "ghcr.io/natesales/q:{{ .Version }}-amd64"
+      - "ghcr.io/natesales/q:{{ .Version }}-arm64"

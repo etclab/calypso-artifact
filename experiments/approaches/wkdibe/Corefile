@@ -1,0 +1,18 @@
+# DNS over HTTPS with WKD-IBE
+https://.:8443 {
+    etcd_calypso {
+        endpoint http://localhost:2379
+        path /skydns
+    }
+    tls cert.pem key.pem
+    log
+}
+
+# DNS over UDP with WKD-IBE
+.:1053 {
+    etcd_calypso {
+        endpoint http://localhost:2379
+        path /skydns
+    }
+    log
+}

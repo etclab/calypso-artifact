@@ -1,0 +1,18 @@
+# DNS over HTTPS (DoH)
+https://.:8443 {
+    etcd {
+        path /skydns
+        endpoint http://localhost:2379
+    }
+    tls cert.pem key.pem
+    log
+}
+
+# DNS over UDP
+.:1053 {
+    etcd {
+        path /skydns
+        endpoint http://localhost:2379
+    }
+    log
+}

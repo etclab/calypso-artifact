@@ -1,0 +1,26 @@
+# DNS over HTTPS with JWT Authorization
+https://.:8443 {
+    jwt_edns {
+        algorithm eddsa
+        key_file public.pem
+    }
+    etcd {
+        path /skydns
+        endpoint http://localhost:2379
+    }
+    tls cert.pem key.pem
+    log
+}
+
+# DNS over UDP with JWT Authorization
+.:1053 {
+    jwt_edns {
+        algorithm eddsa
+        key_file public.pem
+    }
+    etcd {
+        path /skydns
+        endpoint http://localhost:2379
+    }
+    log
+}
