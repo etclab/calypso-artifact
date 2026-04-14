@@ -64,7 +64,10 @@ apply_coredns_overlay() {
     if ! grep -q '^ego:' "$cd_dir/Makefile"; then
         cat "$SRC/coredns-overlay/Makefile.ego" >> "$cd_dir/Makefile"
     fi
-    cp -R "$SRC/coredns-overlay/dev" "$cd_dir/dev"
+    # Copy dev/ contents idempotently (the trailing /. avoids nested dev/dev/
+    # if the destination already exists from a prior run).
+    mkdir -p "$cd_dir/dev"
+    cp -R "$SRC/coredns-overlay/dev/." "$cd_dir/dev/"
     cp "$SRC/coredns-overlay/gen_certs.sh" "$cd_dir/gen_certs.sh"
 
     # Inject extra direct dependencies into go.mod.
@@ -84,10 +87,12 @@ if [ ! -d "coredns" ]; then
     fi
     echo "  ↓ Cloning $COREDNS_REPO at $COREDNS_TAG"
     gh repo clone "$COREDNS_REPO" coredns -- --quiet --branch "$COREDNS_TAG" --depth 1
-    apply_coredns_overlay "$WORKSPACE/repos/coredns"
 else
     echo "  ⊙ coredns (already present)"
 fi
+# Always (re)apply the overlay — idempotent. This catches the case where
+# coredns/ exists from a prior run or a manual clone but hasn't been patched.
+apply_coredns_overlay "$WORKSPACE/repos/coredns"
 
 if [ ! -d "etcd" ]; then
     if ! command -v gh >/dev/null 2>&1; then
