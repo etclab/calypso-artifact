@@ -48,7 +48,7 @@ After setting up the workspace and building components:
 2. Build CoreDNS binary
 3. Generate TLS certificates (auto-generates if missing)
 4. Start etcd on http://localhost:2379
-5. Start CoreDNS with DoH on https://localhost:443
+5. Start CoreDNS with DoH on https://localhost:8443
 
 **Logs and configuration:**
 - Location: `$WORKSPACE/approaches/<approach>/` (or in-repo: `./approaches/<approach>/`)
@@ -60,7 +60,7 @@ After setting up the workspace and building components:
 **Testing:**
 ```bash
 # Query DNS over HTTPS (using -i to skip TLS verification)
-$WORKSPACE/build/q -i A example.com @https://localhost:443
+$WORKSPACE/build/q -i A example.com @https://localhost:8443
 
 # Load test data into etcd
 $WORKSPACE/build/etcdctl --endpoints=http://localhost:2379 put /skydns/com/example/test '{"host":"192.168.1.1"}'

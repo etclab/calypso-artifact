@@ -15,7 +15,7 @@ set -e
 APPROACH="${1:-plain}"
 DOMAIN="${DOMAIN:-a.default.svc.cluster.local}"
 RECORD_TYPE="${RECORD_TYPE:-A}"
-SERVER="${SERVER:-https://localhost:443/dns-query}"
+SERVER="${SERVER:-https://localhost:8443/dns-query}"
 
 # Detect transport type based on SERVER format
 if [[ "$SERVER" =~ ^https?:// ]]; then

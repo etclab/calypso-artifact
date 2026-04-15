@@ -30,7 +30,7 @@ Start, query, stop one approach to verify each works in isolation:
 ```bash
 cd experiments
 ./scripts/start.sh calypso
-./build/q -i TXT verify.example.com @https://localhost:443     # DoH lookup
+./build/q -i TXT verify.example.com @https://localhost:8443     # DoH lookup
 ./scripts/stop.sh calypso
 ```
 
