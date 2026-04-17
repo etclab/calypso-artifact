@@ -66,17 +66,30 @@ setup_wkdibe() {
 }
 
 # Generate fresh Calypso test keys
+#
+# Reader keys must be tied to a concrete domain (calypso.go:940 rejects
+# wildcards in DecryptAndVerify). So the chain is:
+#   1. namespace wildcard writer (*.test.svc.cluster.local)
+#   2. derive concrete service writer for testservice.test.svc.cluster.local
+#   3. derive reader from the concrete writer
 setup_calypso() {
     info "Generating Calypso test keys..."
-    rm -f ./approaches/calypso/test-namespace.key ./approaches/calypso/test-namespace-reader.key
+    rm -f ./approaches/calypso/test-namespace.key \
+          ./approaches/calypso/test-service.key \
+          ./approaches/calypso/test-namespace-reader.key
     ./build/etcd-client calypso keygen \
         --params ./approaches/calypso/params.bin \
         --authority ./approaches/calypso/authority.bin \
         --domain "*.test.svc.cluster.local" \
         --writer \
-        --output ./approaches/calypso/test-namespace.key >/dev/null 2>&1 || die "Calypso writer key generation failed"
+        --output ./approaches/calypso/test-namespace.key >/dev/null 2>&1 || die "Calypso namespace writer key generation failed"
+    ./build/etcd-client calypso keyder \
+        --params ./approaches/calypso/params.bin \
+        --parent-key ./approaches/calypso/test-namespace.key \
+        --domain "testservice.test.svc.cluster.local" \
+        --output ./approaches/calypso/test-service.key >/dev/null 2>&1 || die "Calypso service writer key derivation failed"
     ./build/etcd-client calypso reader \
-        --writer ./approaches/calypso/test-namespace.key \
+        --writer ./approaches/calypso/test-service.key \
         --output ./approaches/calypso/test-namespace-reader.key >/dev/null 2>&1 || die "Calypso reader key generation failed"
 }
 
