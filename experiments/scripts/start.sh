@@ -142,7 +142,7 @@ if [ "$BASE_APPROACH" = "wkdibe" ]; then
         echo "Generating WKD-IBE identity key for test domain..."
         "$WORKSPACE/build/etcd-client" wkdibe keygen \
             --params "$PARAMS_FILE" --master-key "$MASTER_KEY" \
-            --pattern "local,cluster,svc,test,testservice" --output "$TEST_KEY"
+            --domain "testservice.test.svc.cluster.local" --output "$TEST_KEY"
         echo "  ✓ Test key saved to $TEST_KEY"
         echo ""
     fi
@@ -153,7 +153,7 @@ if [ "$BASE_APPROACH" = "wkdibe" ]; then
         echo "Generating WKD-IBE wildcard identity key for queries..."
         "$WORKSPACE/build/etcd-client" wkdibe keygen \
             --params "$PARAMS_FILE" --master-key "$MASTER_KEY" \
-            --pattern "local,cluster,svc,*,*" --output "$WILDCARD_KEY"
+            --domain "*.*.svc.cluster.local" --output "$WILDCARD_KEY"
         echo "  ✓ Wildcard key saved to $WILDCARD_KEY"
         echo ""
     fi

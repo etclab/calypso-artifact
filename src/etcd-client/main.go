@@ -135,7 +135,7 @@ EXAMPLES:
     # WKD-IBE setup and usage
     etcd-client wkdibe setup --max-depth 5
     etcd-client wkdibe keygen --params params.bin --master-key master.key \
-        --pattern "com,example,alice" --output alice.key
+        --domain "alice.example.com" --output alice.key
     CRYPTO_TYPE=wkdibe WKDIBE_PARAMS_FILE=params.bin WKDIBE_KEY_FILE=alice.key \
         etcd-client -lookup alice.example.com
 
