@@ -55,42 +55,16 @@ setup_enclave_jwt() {
 }
 
 # Generate fresh WKD-IBE test key
-setup_wkdibe() {
-    info "Generating WKD-IBE test key..."
-    rm -f ./approaches/wkdibe/test.key
-    ./build/etcd-client wkdibe keygen \
-        --params ./approaches/wkdibe/params.bin \
-        --master-key ./approaches/wkdibe/master.key \
-        --domain "testservice.test.svc.cluster.local" \
-        --output ./approaches/wkdibe/test.key >/dev/null 2>&1 || die "WKD-IBE key generation failed"
-}
-
-# Generate fresh Calypso test keys
-#
-# Reader keys must be tied to a concrete domain (calypso.go:940 rejects
-# wildcards in DecryptAndVerify). So the chain is:
-#   1. namespace wildcard writer (*.test.svc.cluster.local)
-#   2. derive concrete service writer for testservice.test.svc.cluster.local
-#   3. derive reader from the concrete writer
-setup_calypso() {
-    info "Generating Calypso test keys..."
-    rm -f ./approaches/calypso/test-namespace.key \
-          ./approaches/calypso/test-service.key \
-          ./approaches/calypso/test-namespace-reader.key
-    ./build/etcd-client calypso keygen \
-        --params ./approaches/calypso/params.bin \
-        --authority ./approaches/calypso/authority.bin \
-        --domain "*.test.svc.cluster.local" \
-        --writer \
-        --output ./approaches/calypso/test-namespace.key >/dev/null 2>&1 || die "Calypso namespace writer key generation failed"
-    ./build/etcd-client calypso keyder \
-        --params ./approaches/calypso/params.bin \
-        --parent-key ./approaches/calypso/test-namespace.key \
-        --domain "testservice.test.svc.cluster.local" \
-        --output ./approaches/calypso/test-service.key >/dev/null 2>&1 || die "Calypso service writer key derivation failed"
+# Derive the Calypso reader from the concrete writer that start.sh
+# produces. start.sh handles params/authority/wildcard/writer setup; the
+# reader is the only piece test() needs on top, and it must be derived
+# after start.sh has created writer.key.
+setup_calypso_reader() {
+    info "Deriving Calypso reader key..."
+    rm -f ./approaches/calypso/reader.key
     ./build/etcd-client calypso reader \
-        --writer ./approaches/calypso/test-service.key \
-        --output ./approaches/calypso/test-namespace-reader.key >/dev/null 2>&1 || die "Calypso reader key generation failed"
+        --writer ./approaches/calypso/writer.key \
+        --output ./approaches/calypso/reader.key >/dev/null 2>&1 || die "Calypso reader key generation failed"
 }
 
 # Benchmark single approach
@@ -294,17 +268,22 @@ test() {
     case "$approach" in
         jwt) setup_jwt ;;
         enclave-jwt) setup_enclave_jwt ;;
-        wkdibe) setup_wkdibe ;;
-        calypso) setup_calypso ;;
     esac
 
     # Ensure clean state
     $SCRIPT_DIR/stop.sh 2>/dev/null || true
 
-    # Start services
+    # Start services. start.sh creates params/master/authority and the
+    # writer/test keys for wkdibe and calypso (see start.sh sections for
+    # each approach). Reader derivation for calypso runs after, since it
+    # depends on writer.key existing.
     info "Starting services..."
     $SCRIPT_DIR/start.sh "$approach" >/dev/null 2>&1
     sleep 5
+
+    case "$approach" in
+        calypso) setup_calypso_reader ;;
+    esac
 
     # Insert test record
     info "Inserting test record..."
@@ -333,7 +312,7 @@ test() {
         calypso)
             CRYPTO_TYPE=calypso \
                 CALYPSO_PARAMS_FILE=./approaches/calypso/params.bin \
-                CALYPSO_WRITER_KEY=./approaches/calypso/test-namespace.key \
+                CALYPSO_WRITER_KEY=./approaches/calypso/writer.key \
                 CALYPSO_MAX_DEPTH=7 \
                 ./build/etcd-client -register testservice.test.svc.cluster.local=10.0.1.100 || die "Insert failed"
             ;;
@@ -358,7 +337,7 @@ test() {
             ;;
         calypso)
             result=$(./build/q -i A testservice.test.svc.cluster.local @https://localhost:8443 \
-                --calypso --params=./approaches/calypso/params.bin --key=./approaches/calypso/test-namespace-reader.key 2>&1)
+                --calypso --params=./approaches/calypso/params.bin --key=./approaches/calypso/reader.key 2>&1)
             ;;
         *)
             result=$(./build/q -i A testservice.test.svc.cluster.local @https://localhost:8443 2>&1)
