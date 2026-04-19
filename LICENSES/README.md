@@ -8,13 +8,13 @@ this index summarizes them.
 |---|---|---|
 | `src/plugins/`         | BSD-3-Clause  | The 3 CoreDNS plugins authored for this paper |
 | `src/coredns-overlay/` | BSD-3-Clause  | Build-time overlay applied onto upstream CoreDNS |
-| `src/calypso/`         | BSD-3-Clause  | Authored for this paper |
 | `src/cryptofun/`       | BSD-3-Clause  | Authored for this paper |
 | `src/etcd-client/`     | BSD-3-Clause  | Authored for this paper |
 | `src/jwt-tools/`       | BSD-3-Clause  | Authored for this paper |
 | `experiments/`         | BSD-3-Clause  | Experiment orchestration scripts |
 | `src/q/`               | GPL-3.0       | DNS query client; carries upstream GPL-3.0 |
 | Fetched on demand:     |               |  |
+| `github.com/etclab/calypso` v0.1.0      | BSD-3-Clause | Core WKD-IBE + Calypso library; published independently, fetched via `go mod` |
 | CoreDNS v1.12.4 (via `use-vendored.sh`) | Apache-2.0 | Upstream coredns/coredns |
 | etcd (via `use-vendored.sh`)            | Apache-2.0 | Upstream etcd-io/etcd |
 | ego (optional, SGX)                     | various    | See https://github.com/edgelesssys/ego |
@@ -35,10 +35,13 @@ All licenses listed are mutually compatible for an artifact distribution:
 
 ## Reusing parts of this artifact in other projects
 
-If you want to reuse a single component (e.g., the `calypso` Go package),
-copy its directory along with its `LICENSE` file. The BSD-3-Clause grant
-is permissive; you do not need to inherit any other license from this
-artifact.
+If you want to reuse a single component, copy its directory along with
+its `LICENSE` file. The BSD-3-Clause grant is permissive; you do not
+need to inherit any other license from this artifact. The core
+cryptographic library is published independently as
+[`github.com/etclab/calypso`](https://github.com/etclab/calypso) and
+should be consumed via `go get github.com/etclab/calypso@v0.1.0`
+rather than copied.
 
 `BSD-3-Clause.txt` in this directory is the canonical text used for all
 BSD-3-Clause components in the artifact.

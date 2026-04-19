@@ -5,7 +5,7 @@ go 1.24.4
 require (
 	github.com/ameshkov/dnscrypt/v2 v2.4.0
 	github.com/cloudflare/circl v1.6.1
-	github.com/etclab/calypso v0.0.0-00010101000000-000000000000
+	github.com/etclab/calypso v0.1.0
 	github.com/etclab/ncircl v0.0.0-20251024222956-741fe8b7ba2c
 	github.com/jedisct1/go-dnsstamps v0.0.0-20240423203910-07a0735c7774
 	github.com/jessevdk/go-flags v1.6.1
@@ -45,5 +45,3 @@ require (
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/tools v0.37.0 // indirect
 )
-
-replace github.com/etclab/calypso => /Users/pniroula/Projects/calypso/calypso

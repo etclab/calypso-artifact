@@ -44,52 +44,17 @@ echo ""
 
 cd "$WORKSPACE/repos"
 
-echo "Step 1: Update go.mod replace directives for calypso"
+echo "Step 1: Tidy module dependencies"
 echo ""
 
-CALYPSO_PATH="$WORKSPACE/repos/calypso"
-
-# Update etcd-client
-if [ -d "ztrust-dns/etcd-client" ]; then
-    echo "  → Updating ztrust-dns/etcd-client/go.mod"
-    cd ztrust-dns/etcd-client
-    if grep -q "replace.*calypso" go.mod 2>/dev/null; then
-        sed -i.bak "s|replace.*calypso.*=>.*|replace github.com/etclab/calypso => $CALYPSO_PATH|" go.mod
-        rm -f go.mod.bak
-    else
-        echo "replace github.com/etclab/calypso => $CALYPSO_PATH" >> go.mod
+# github.com/etclab/calypso is consumed as a published Go module
+# (pinned in each go.mod); tidy fetches it and refreshes go.sum.
+for dir in ztrust-dns/etcd-client q coredns; do
+    if [ -d "$dir" ]; then
+        echo "  → go mod tidy in $dir"
+        (cd "$dir" && go mod tidy)
     fi
-    go mod tidy
-    cd "$WORKSPACE/repos"
-fi
-
-# Update q
-if [ -d "q" ]; then
-    echo "  → Updating q/go.mod"
-    cd q
-    if grep -q "replace.*calypso" go.mod 2>/dev/null; then
-        sed -i.bak "s|replace.*calypso.*=>.*|replace github.com/etclab/calypso => $CALYPSO_PATH|" go.mod
-        rm -f go.mod.bak
-    else
-        echo "replace github.com/etclab/calypso => $CALYPSO_PATH" >> go.mod
-    fi
-    go mod tidy
-    cd "$WORKSPACE/repos"
-fi
-
-# Update coredns
-if [ -d "coredns" ]; then
-    echo "  → Updating coredns/go.mod"
-    cd coredns
-    if grep -q "replace.*calypso" go.mod 2>/dev/null; then
-        sed -i.bak "s|replace.*calypso.*=>.*|replace github.com/etclab/calypso => $CALYPSO_PATH|" go.mod
-        rm -f go.mod.bak
-    else
-        echo "replace github.com/etclab/calypso => $CALYPSO_PATH" >> go.mod
-    fi
-    go mod tidy
-    cd "$WORKSPACE/repos"
-fi
+done
 
 echo ""
 echo "Step 2: Building components"

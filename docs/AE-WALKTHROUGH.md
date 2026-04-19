@@ -77,15 +77,22 @@ in the EDNS OPT record relative to plain DNS.
 
 ## Step 5 — Microbenchmarks (paper Fig 3 + Table 2) (≈15 min)
 
+The Calypso library is the standalone module
+[`github.com/etclab/calypso`](https://github.com/etclab/calypso); its
+test-bench is what produces the Fig 3 numbers. Clone the `v0.1.0` tag
+and run it directly:
+
 ```bash
-# Calypso operations vs. number of labels
-cd src/calypso
+ARTIFACT=$(pwd)   # run this from the artifact root
+
+# Calypso operations vs. number of labels (paper Fig 3 source)
+git clone --branch v0.1.0 --depth 1 https://github.com/etclab/calypso /tmp/calypso
+cd /tmp/calypso
 go test -bench=. -benchmem -run=^$ ./... > /tmp/calypso-bench.txt
-python3 ../../misc/gen-microbench-dat.py /tmp/calypso-bench.txt > /tmp/calypso-bench.dat
-gnuplot ../../experiments/scripts/plot/style.gpi  # optional — for inspection
+python3 "$ARTIFACT/misc/gen-microbench-dat.py" /tmp/calypso-bench.txt > /tmp/calypso-bench.dat
 
 # RSA-3072 baseline (paper Table 2)
-cd ../cryptofun
+cd "$ARTIFACT/src/cryptofun"
 go test -bench=. -benchmem -run=^$ ./... > /tmp/rsa-bench.txt
 python3 ../../misc/gen-rsa-comparison.py /tmp/calypso-bench.txt /tmp/rsa-bench.txt
 ```

@@ -39,7 +39,6 @@ link() {
 }
 
 cd "$WORKSPACE/repos"
-link "$SRC/calypso"   calypso
 link "$SRC/q"         q
 link "$SRC/cryptofun" cryptofun
 

@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/cloudflare/circl v1.6.1
-	github.com/etclab/calypso v0.0.0-00010101000000-000000000000
+	github.com/etclab/calypso v0.1.0
 	github.com/etclab/ncircl v0.0.0-20251024222956-741fe8b7ba2c
 	go.etcd.io/etcd/client/v3 v3.6.4
 )
@@ -29,5 +29,3 @@ require (
 	google.golang.org/grpc v1.71.1 // indirect
 	google.golang.org/protobuf v1.36.5 // indirect
 )
-
-replace github.com/etclab/calypso => /Users/pniroula/Projects/calypso/calypso

@@ -33,11 +33,14 @@ evaluation orchestration, and the paper's raw data.
 │   │   ├── etcd_crypto/       # AES (enclave) + WKD-IBE decryption
 │   │   └── etcd_calypso/      # search-tag-based routing for Calypso
 │   ├── coredns-overlay/       # files copied/appended onto upstream CoreDNS at build time
-│   ├── calypso/               # WKD-IBE + Calypso Go package
 │   ├── q/                     # patched DNS client (--measure-sizes, granular timing)
 │   ├── cryptofun/             # RSA-3072 baseline benchmarks (paper Table 2)
 │   ├── etcd-client/           # etcd record-registration + key-provisioning tool
 │   └── jwt-tools/             # JWT generator (EdDSA, ES256, RS256)
+│
+│   The core WKD-IBE + Calypso Go library is the standalone module
+│   github.com/etclab/calypso (pinned to v0.1.0 in each consumer's
+│   go.mod), published independently for reuse outside this artifact.
 │
 │   At build time, use-vendored.sh clones upstream CoreDNS v1.12.4 and
 │   etcd, applies the overlay, and copies the plugins into the CoreDNS
