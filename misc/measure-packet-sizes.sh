@@ -75,7 +75,7 @@ case "$APPROACH" in
         else
             echo "Measuring Plain DNS..."
         fi
-        OUTPUT=$($Q_BIN "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS 2>&1 || true)
+        OUTPUT=$($Q_BIN -i "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS 2>&1 || true)
         ;;
     jwt)
         if [ -z "$JWT_TOKEN" ]; then
@@ -87,7 +87,7 @@ case "$APPROACH" in
         else
             echo "Measuring JWT over DNS..."
         fi
-        OUTPUT=$($Q_BIN "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS --jwt --token="$JWT_TOKEN" 2>&1 || true)
+        OUTPUT=$($Q_BIN -i "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS --jwt --token="$JWT_TOKEN" 2>&1 || true)
         ;;
     wkd-ibe)
         if [ -z "$WKDIBE_PARAMS" ] || [ -z "$WKDIBE_KEY" ]; then
@@ -99,7 +99,7 @@ case "$APPROACH" in
         else
             echo "Measuring WKD-IBE over DNS..."
         fi
-        OUTPUT=$($Q_BIN "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS --wkdibe --params="$WKDIBE_PARAMS" --key="$WKDIBE_KEY" 2>&1 || true)
+        OUTPUT=$($Q_BIN -i "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS --wkdibe --params="$WKDIBE_PARAMS" --key="$WKDIBE_KEY" 2>&1 || true)
         ;;
     calypso)
         if [ -z "$CALYPSO_PARAMS" ] || [ -z "$CALYPSO_KEY" ]; then
@@ -111,7 +111,7 @@ case "$APPROACH" in
         else
             echo "Measuring Calypso over DNS..."
         fi
-        OUTPUT=$($Q_BIN "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS --calypso --params="$CALYPSO_PARAMS" --key="$CALYPSO_KEY" 2>&1 || true)
+        OUTPUT=$($Q_BIN -i "$RECORD_TYPE" "$DOMAIN" "@$SERVER" --measure-sizes $TRANSPORT_FLAGS --calypso --params="$CALYPSO_PARAMS" --key="$CALYPSO_KEY" 2>&1 || true)
         ;;
     *)
         echo "Error: Unknown approach '$APPROACH'"

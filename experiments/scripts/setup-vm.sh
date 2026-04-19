@@ -53,9 +53,18 @@ echo "  ✓ $WORKSPACE/results"
 echo ""
 echo "Checking Go installation..."
 
+PIN_GO_VERSION="1.25.3"
 if command -v go &> /dev/null; then
     GO_VERSION=$(go version | awk '{print $3}' | sed 's/go//')
-    echo "  ✓ Go $GO_VERSION already installed"
+    # sort -V -C succeeds (exit 0) iff the input is in ascending order, so
+    # the test passes when GO_VERSION >= PIN_GO_VERSION.
+    if printf '%s\n%s\n' "$PIN_GO_VERSION" "$GO_VERSION" | sort -V -C; then
+        echo "  ✓ Go $GO_VERSION already installed (pin: $PIN_GO_VERSION)"
+    else
+        echo "  ⚠ Go $GO_VERSION installed, but artifact pins $PIN_GO_VERSION."
+        echo "    Build may fail on this version. Install $PIN_GO_VERSION from"
+        echo "    https://go.dev/dl/ to match the tested toolchain."
+    fi
 else
     echo "  Go not found. Installing Go 1.25.3..."
 
