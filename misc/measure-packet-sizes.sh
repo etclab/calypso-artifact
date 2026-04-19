@@ -13,7 +13,7 @@ set -e
 
 # Configuration
 APPROACH="${1:-plain}"
-DOMAIN="${DOMAIN:-a.default.svc.cluster.local}"
+DOMAIN="${DOMAIN:-testservice.test.svc.cluster.local}"
 RECORD_TYPE="${RECORD_TYPE:-A}"
 SERVER="${SERVER:-https://localhost:8443/dns-query}"
 

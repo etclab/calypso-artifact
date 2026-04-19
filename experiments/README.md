@@ -33,7 +33,7 @@ After setting up the workspace and building components:
 #   jwt         - JWT-Authorized DoH
 #   enclave     - Enclave-Protected CoreDNS
 #   enclave-jwt - Enclave + JWT (AES encryption + JWT authorization)
-#   wkd-ibe     - WKD-IBE + DoH
+#   wkdibe     - WKD-IBE + DoH
 #   calypso     - Calypso + DoH
 
 # Example: Start plain DoH
@@ -89,8 +89,8 @@ Measuring the CDF of end-to-end DNS request/response latencies for different app
 ```
 
 **Available approaches:**
-- `plain`, `jwt`, `enclave`, `enclave-jwt`, `wkd-ibe`, `calypso`
-- UDP variants: `plain-udp`, `jwt-udp`, `enclave-udp`, `enclave-jwt-udp`, `wkd-ibe-udp`, `calypso-udp`
+- `plain`, `jwt`, `enclave`, `enclave-jwt`, `wkdibe`, `calypso`
+- UDP variants: `plain-udp`, `jwt-udp`, `enclave-udp`, `enclave-jwt-udp`, `wkdibe-udp`, `calypso-udp`
 
 **Default parameters:**
 - Queries: 300
@@ -106,7 +106,7 @@ Measuring the CDF of end-to-end DNS request/response latencies for different app
 # Compare multiple approaches (auto-generates plot)
 ./run.sh compare <approach1> <approach2> [...] [queries] [services] [namespaces]
 
-# Benchmark all core approaches (DoH + UDP): plain, jwt, wkd-ibe, calypso
+# Benchmark all core approaches (DoH + UDP): plain, jwt, wkdibe, calypso
 ./run.sh full [queries] [services] [namespaces]
 
 # Benchmark all approaches including enclave variants (DoH + UDP)
@@ -131,9 +131,9 @@ Measuring the CDF of end-to-end DNS request/response latencies for different app
 **Examples:**
 ```bash
 # Full comparison
-./run.sh compare plain jwt wkd-ibe calypso 10000 500 10
+./run.sh compare plain jwt wkdibe calypso 10000 500 10
 
-# Run all core approaches (8 variants: plain, jwt, wkd-ibe, calypso + UDP)
+# Run all core approaches (8 variants: plain, jwt, wkdibe, calypso + UDP)
 ./run.sh full 1000 50 5
 
 # Run all approaches including enclave (12 variants: adds enclave, enclave-jwt + UDP)
@@ -141,10 +141,10 @@ Measuring the CDF of end-to-end DNS request/response latencies for different app
 
 # Custom plot labels
 ./run.sh plot calypso calypso-udp "Calypso DoH" "Calypso UDP"
-./run.sh plot plain jwt wkd-ibe wkd-ibe-udp calypso calypso-udp "Plain-DoH" "JWT-DoH" "WKD-IBE DoH" "WKDIBE-UDP" "Calypso DoH" "Calypso UDP"
+./run.sh plot plain jwt wkdibe wkdibe-udp calypso calypso-udp "Plain-DoH" "JWT-DoH" "WKD-IBE DoH" "WKDIBE-UDP" "Calypso DoH" "Calypso UDP"
 
 # Test specific approach
-./run.sh test wkd-ibe
+./run.sh test wkdibe
 ./run.sh test enclave-jwt
 ```
 

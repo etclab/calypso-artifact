@@ -16,10 +16,10 @@ cd experiments
 ./run.sh test plain
 ```
 
-**Expected:** CoreDNS+etcd start, a single DoH query for
-`a.default.svc.cluster.local` resolves to a populated address, services
-stop cleanly. Validates that the build is good and the simplest data path
-works.
+**Expected:** CoreDNS+etcd start, the test record
+`testservice.test.svc.cluster.local` is registered, a single DoH query
+resolves it to `10.0.1.100`, and services stop cleanly. Validates that
+the build is good and the simplest data path works.
 
 ---
 

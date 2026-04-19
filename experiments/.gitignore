@@ -22,9 +22,6 @@ approaches/*/key.*
 # OS files
 .DS_Store
 
-# Keys directory
-approaches/wkd-ibe/keys/
-
 # Authority files
 approaches/**/*.bin
 approaches/**/*.key

@@ -1,65 +1,66 @@
 # Reproducing Table 1 — DNS Packet Expansion
 
-Table 1 in the paper reports DNS request and response sizes for four
-approaches: **Normal** (plain DoH), **JWT**, **JEDI** (WKD-IBE), and
-**Calypso**. Sizes are deterministic — no averaging is needed; one
-query per approach is sufficient.
+Table 1 reports DNS request/response sizes for four approaches:
+**Normal** (plain DoH), **JWT**, **JEDI** (WKD-IBE), and **Calypso**.
+Sizes are deterministic; one query per approach is enough.
 
-## Prerequisites
+## What you need from the install
 
-After running the standard install steps (`setup-vm.sh`,
-`use-vendored.sh`, `build-components.sh`):
+After `setup-vm.sh`, `use-vendored.sh`, `build-components.sh`:
 
-- The `q` binary at `experiments/build/q` supports the
-  `--measure-sizes` flag.
-- For each approach, CoreDNS and etcd must be running and etcd must
-  contain the test record. The walkthrough's per-approach lifecycle
-  (Step 2 in `docs/AE-WALKTHROUGH.md`) covers this:
+- `experiments/build/q` (supports `--measure-sizes`)
+- `experiments/build/etcd-client`
+- `experiments/scripts/{start,stop}.sh`
+- `misc/measure-packet-sizes.sh`
 
-  ```bash
-  cd experiments
-  ./scripts/start.sh <approach>
-  ```
+The test record used throughout is
+`testservice.test.svc.cluster.local = 10.0.1.100`. `start.sh` brings up
+CoreDNS + etcd and provisions per-approach keys, but does **not**
+insert any record — the insertion is the second step below.
 
-  Use `./scripts/stop.sh <approach>` between approaches.
-
-- Test record (already populated by the start script for each
-  approach):
-  - Domain: `a.default.svc.cluster.local`
-  - Record type: `A`
-
-- Per-approach secrets (generated under
-  `experiments/approaches/<approach>/` by the start script — paths
-  shown below assume that layout).
-
-## Run
-
-Run the measurement script once per approach. The script lives at
-`misc/measure-packet-sizes.sh` and invokes the `q` binary from
-`experiments/build/q` (override with `Q_BIN=…` if needed).
+## The flow (same shape for all four)
 
 ```bash
-cd misc
+cd experiments
 
-# 1. Normal — plain DoH baseline.
-./measure-packet-sizes.sh plain
+# 1. Bring up the approach (idempotent; reuses existing keys/certs)
+./scripts/start.sh <APPROACH>
 
-# 2. JWT — JWT-authorized DoH.
-JWT_TOKEN=$(cat ../experiments/approaches/jwt/jwt.token) \
-  ./measure-packet-sizes.sh jwt
+# 2. Insert the test record under the approach's crypto envelope
+<INSERT_ENV> ./build/etcd-client \
+    -register testservice.test.svc.cluster.local=10.0.1.100
 
-# 3. JEDI — WKD-IBE.
-WKDIBE_PARAMS=../experiments/approaches/wkdibe/wkdibe.params \
-WKDIBE_KEY=../experiments/approaches/wkdibe/wkdibe.key \
-  ./measure-packet-sizes.sh wkd-ibe
+# 3. (Calypso only) derive a concrete-domain reader key
+./build/etcd-client calypso reader \
+    --writer ./approaches/calypso/writer.key \
+    --output ./approaches/calypso/reader.key
 
-# 4. Calypso.
-CALYPSO_PARAMS=../experiments/approaches/calypso/calypso.params \
-CALYPSO_KEY=../experiments/approaches/calypso/calypso.key \
-  ./measure-packet-sizes.sh calypso
+# 4. Measure
+cd ../misc
+<MEASURE_ENV> ./measure-packet-sizes.sh <SCRIPT_ARG>
+
+# 5. Tear down
+cd ../experiments && ./scripts/stop.sh
 ```
 
-Each invocation prints a line of the form:
+The variable parts per approach:
+
+| Paper row | `<APPROACH>` (start.sh) | `<SCRIPT_ARG>` (measure-packet-sizes.sh) | `<INSERT_ENV>` | `<MEASURE_ENV>` |
+|---|---|---|---|---|
+| Normal  | `plain`   | `plain`   | *(none)* | *(none)* |
+| JWT     | `jwt`     | `jwt`     | *(none)* | `JWT_TOKEN=$(cat ./approaches/jwt/jwt.token)` |
+| JEDI    | `wkdibe`  | `wkd-ibe` | `CRYPTO_TYPE=wkdibe WKDIBE_PARAMS_FILE=./approaches/wkdibe/params.bin WKDIBE_KEY_FILE=./approaches/wkdibe/test.key WKDIBE_MAX_DEPTH=6` | `WKDIBE_PARAMS=../experiments/approaches/wkdibe/params.bin WKDIBE_KEY=../experiments/approaches/wkdibe/test.key` |
+| Calypso | `calypso` | `calypso` | `CRYPTO_TYPE=calypso CALYPSO_PARAMS_FILE=./approaches/calypso/params.bin CALYPSO_WRITER_KEY=./approaches/calypso/writer.key CALYPSO_MAX_DEPTH=7` | `CALYPSO_PARAMS=../experiments/approaches/calypso/params.bin CALYPSO_KEY=../experiments/approaches/calypso/reader.key` |
+
+Skip step 3 except for Calypso.
+
+> **Note:** `measure-packet-sizes.sh` happens to use `wkd-ibe` (with
+> hyphen) as its own argument; everywhere else (`run.sh`, `start.sh`,
+> `etcd-client`) the approach is `wkdibe`. The table reflects that.
+
+## What you'll see
+
+Each measurement prints:
 
 ```
 [SIZE] dns_req=<N> dns_resp=<M> http_req=<...> http_resp=<...>
@@ -67,15 +68,6 @@ Each invocation prints a line of the form:
 
 Table 1 reports `dns_req` and `dns_resp` (the DNS message layer,
 before HTTP/transport encapsulation).
-
-## Mapping to paper Table 1
-
-| Paper row | Script argument | Effective `q` flags                |
-|-----------|-----------------|------------------------------------|
-| Normal    | `plain`         | (no auth, no encryption)           |
-| JWT       | `jwt`           | `--jwt --token=$JWT_TOKEN`         |
-| JEDI      | `wkd-ibe`       | `--wkdibe --params=… --key=…`      |
-| Calypso   | `calypso`       | `--calypso --params=… --key=…`     |
 
 ## Reference values (from paper)
 
@@ -86,6 +78,5 @@ before HTTP/transport encapsulation).
 | JEDI     | 60 B        | 1733 B       |
 | Calypso  | 124 B       | 1817 B       |
 
-Absolute sizes may differ by a few bytes if the etcd-stored ciphertext
-length shifts (e.g., due to IV or authentication-tag sizing); relative
-expansion factors are stable.
+Absolute sizes may shift by a few bytes (IV/auth-tag sizing in the
+etcd-stored ciphertext); relative expansion factors are stable.
