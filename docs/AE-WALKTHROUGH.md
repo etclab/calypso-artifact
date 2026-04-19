@@ -25,21 +25,25 @@ the build is good and the simplest data path works.
 
 ## Step 2 — Per-approach lifecycle (≈2 min total)
 
-Start, query, stop one approach to verify each works in isolation:
+Run the full lifecycle (start, insert test record, query, stop) for
+each cryptographic approach:
 
 ```bash
 cd experiments
-./scripts/start.sh calypso
-./build/q -i TXT verify.example.com @https://localhost:8443     # DoH lookup
-./scripts/stop.sh calypso
+./run.sh test calypso
+./run.sh test jwt
+./run.sh test wkdibe
 ```
 
-Repeat for `jwt`, `wkdibe`. (Skip `enclave`/`enclave-jwt` if not on SGX.)
+(Skip `enclave`/`enclave-jwt` if not on SGX.)
+
+**Expected:** each invocation resolves `testservice.test.svc.cluster.local`
+to `10.0.1.100` and stops cleanly.
 
 **Demonstrates:** the four cryptographic approaches from
-§Implementation are individually exercisable. `calypso` will route via
-EDNS option 65003 with a search-tag hash; logs in
-`approaches/calypso/coredns.log` show the routing.
+§Implementation are individually exercisable. `calypso` routes via EDNS
+option 65003 with a search-tag hash; the preserved log at
+`approaches/calypso/coredns.log` shows the routing path.
 
 ---
 
