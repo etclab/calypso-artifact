@@ -130,7 +130,10 @@ if [ "$INSTALL_EGO" = true ]; then
             rm $EGO_DEB
 
             if command -v ego &> /dev/null; then
-                EGO_VERSION=$(ego version 2>&1 | head -n1 || echo "unknown")
+                # `ego version` prints a glog-style line like
+                # "2026/04/23 03:38:53 INFO EGo version=1.8.0 git_commit=...";
+                # strip the timestamp and INFO level for a clean success line.
+                EGO_VERSION=$(ego version 2>&1 | head -n1 | sed -E 's/^[0-9/: ]+INFO //' || echo "unknown")
                 echo "  ✓ Ego installed: $EGO_VERSION"
             else
                 echo "  ✗ Ego installation failed"
