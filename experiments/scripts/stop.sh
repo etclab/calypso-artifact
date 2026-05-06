@@ -23,7 +23,7 @@ for approach_dir in "$WORKSPACE/approaches"/*; do
         else
             # Check if processes are running without PID files
             coredns_binary="coredns-${approach}"
-            etcd_data_dir="/tmp/etcd-data-${approach}"
+            etcd_data_dir="$WORKSPACE/approaches/${approach}/tmp/etcd-data-${approach}"
 
             if pgrep -f "$coredns_binary" > /dev/null 2>&1 || pgrep -f "etcd.*${etcd_data_dir}" > /dev/null 2>&1; then
                 echo "Stopping $approach (via process search)..."

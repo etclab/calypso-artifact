@@ -186,10 +186,15 @@ start_etcd() {
     local approach="$2"
 
     # Clean up old data
-    rm -rf "/tmp/etcd-data-${approach}"
+    mkdir -p "$WORKSPACE/approaches/${approach}/tmp"
+    rm -rf "$WORKSPACE/approaches/${approach}/tmp/etcd-data-${approach}"
+
+    # Update data-dir path in config (preserve template, modify at runtime)
+    local etcd_data_dir="$WORKSPACE/approaches/${approach}/tmp/etcd-data-${approach}"
+    sed "s|^data-dir:.*|data-dir: ${etcd_data_dir}|" "$config_dir/etcd.conf.yml" > "$config_dir/etcd.conf.yml.runtime"
 
     # Start etcd in background
-    "$WORKSPACE/build/etcd" --config-file "$config_dir/etcd.conf.yml" > "$config_dir/etcd.log" 2>&1 &
+    "$WORKSPACE/build/etcd" --config-file "$config_dir/etcd.conf.yml.runtime" > "$config_dir/etcd.log" 2>&1 &
     local etcd_pid=$!
     echo $etcd_pid > "$config_dir/etcd.pid"
 
@@ -279,7 +284,7 @@ stop_services() {
     else
         echo "  ⚠ etcd PID file not found, searching for process..."
         # Fallback: search for etcd process with matching data directory
-        local etcd_data_dir="/tmp/etcd-data-${approach}"
+        local etcd_data_dir="$WORKSPACE/approaches/${approach}/tmp/etcd-data-${approach}"
         if pkill -f "etcd.*${etcd_data_dir}" 2>/dev/null; then
             echo "  ✓ etcd stopped (found via pkill)"
         else
@@ -288,8 +293,8 @@ stop_services() {
     fi
 
     # Clean up data directory
-    if [ -d "/tmp/etcd-data-${approach}" ]; then
-        rm -rf "/tmp/etcd-data-${approach}"
+    if [ -d "$WORKSPACE/approaches/${approach}/tmp/etcd-data-${approach}" ]; then
+        rm -rf "$WORKSPACE/approaches/${approach}/tmp/etcd-data-${approach}"
         echo "  ✓ Cleaned up etcd data directory"
     fi
 }
