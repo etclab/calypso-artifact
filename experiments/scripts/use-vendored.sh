@@ -79,13 +79,12 @@ apply_coredns_overlay() {
 }
 
 if [ ! -d "coredns" ]; then
-    if ! command -v gh >/dev/null 2>&1; then
-        echo "ERROR: gh CLI not found and coredns not present locally." >&2
-        echo "Install gh (https://cli.github.com/) or manually clone $COREDNS_REPO into ./coredns" >&2
+    if ! command -v git >/dev/null 2>&1; then
+        echo "ERROR: git not found; install git or manually clone $COREDNS_REPO into ./coredns" >&2
         exit 1
     fi
     echo "  ↓ Cloning $COREDNS_REPO at $COREDNS_TAG"
-    gh repo clone "$COREDNS_REPO" coredns -- --quiet --branch "$COREDNS_TAG" --depth 1
+    git clone --quiet --branch "$COREDNS_TAG" --depth 1 "https://github.com/$COREDNS_REPO.git" coredns
 else
     echo "  ⊙ coredns (already present)"
 fi
@@ -94,12 +93,12 @@ fi
 apply_coredns_overlay "$WORKSPACE/repos/coredns"
 
 if [ ! -d "etcd" ]; then
-    if ! command -v gh >/dev/null 2>&1; then
-        echo "ERROR: gh CLI not found and etcd not present locally." >&2
+    if ! command -v git >/dev/null 2>&1; then
+        echo "ERROR: git not found; install git or manually clone $ETCD_REPO into ./etcd" >&2
         exit 1
     fi
     echo "  ↓ Cloning $ETCD_REPO at $ETCD_COMMIT"
-    gh repo clone "$ETCD_REPO" etcd -- --quiet
+    git clone --quiet "https://github.com/$ETCD_REPO.git" etcd
     (cd etcd && git checkout --quiet "$ETCD_COMMIT")
     echo "  ✓ etcd cloned and checked out"
 else
