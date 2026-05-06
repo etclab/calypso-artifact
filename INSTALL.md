@@ -30,7 +30,7 @@ Installed automatically by `setup-vm.sh`; listed here for reference.
 From the artifact root:
 
 ```bash
-# Installs Go 1.25.3 and gh; creates workspace dirs.
+# Installs Go 1.25.3; creates workspace dirs.
 # Append -with-ego on an SGX-capable VM if you intend to run the enclave approach.
 ./experiments/scripts/setup-vm.sh
 
@@ -45,6 +45,26 @@ source ~/.bashrc
 # Build all components into experiments/build/.
 ./experiments/scripts/build-components.sh
 ```
+
+### Note on the `-with-ego` build (SGX path only)
+
+`build-components.sh -with-ego` produces an SGX-signed CoreDNS binary
+(`coredns-ego`). The signing manifest at
+`experiments/repos/coredns/dev/e/enclave-eval.json` embeds three files into
+the signed enclave at build time:
+
+- `experiments/approaches/enclave/aes.key` — AES-256 key the in-enclave
+  `etcd_crypto` plugin uses to decrypt records.
+- `experiments/approaches/enclave/cert.pem` and `key.pem` — TLS material
+  the in-enclave CoreDNS serves DoH with.
+
+`build-components.sh -with-ego` generates these files automatically on the
+first run if they do not already exist, so the build is self-contained. On
+subsequent runs the existing files are kept untouched: this matters because
+records `etcd-client` has already inserted are encrypted under the on-disk
+AES key, and replacing it would silently invalidate them. To rotate the key,
+delete `experiments/approaches/enclave/aes.key` *and* rebuild the
+`-with-ego` binary in the same step before inserting new records.
 
 After this, you should have:
 
