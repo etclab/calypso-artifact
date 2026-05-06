@@ -28,3 +28,7 @@ __pycache__/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+
+# Artifact-doc source 
+docs/artifact-doc/artifact.tex
+docs/artifact-doc/Makefile
