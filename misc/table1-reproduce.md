@@ -1,6 +1,9 @@
-# Reproducing Table 1 — DNS Packet Expansion
+# Reproducing paper Table 3 — DNS Packet Expansion
 
-Table 1 reports DNS request/response sizes for four approaches:
+(This file is named `table1-reproduce.md` for historical reasons; the
+table it reproduces is **Table 3** in the SACMAT 2026 camera-ready.)
+
+Table 3 reports DNS request/response sizes for four approaches:
 **Normal** (plain DoH), **JWT**, **JEDI** (WKD-IBE), and **Calypso**.
 Sizes are deterministic; one query per approach is enough.
 
@@ -66,7 +69,7 @@ Each measurement prints:
 [SIZE] dns_req=<N> dns_resp=<M> http_req=<...> http_resp=<...>
 ```
 
-Table 1 reports `dns_req` and `dns_resp` (the DNS message layer,
+Table 3 reports `dns_req` and `dns_resp` (the DNS message layer,
 before HTTP/transport encapsulation).
 
 ## Reference values (from paper)

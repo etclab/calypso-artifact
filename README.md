@@ -34,7 +34,7 @@ evaluation orchestration, and the paper's raw data.
 │   │   └── etcd_calypso/      # search-tag-based routing for Calypso
 │   ├── coredns-overlay/       # files copied/appended onto upstream CoreDNS at build time
 │   ├── q/                     # patched DNS client (--measure-sizes, granular timing)
-│   ├── cryptofun/             # RSA-3072 baseline benchmarks (paper Table 2)
+│   ├── cryptofun/             # RSA-3072 baseline benchmarks (paper Table 4)
 │   ├── etcd-client/           # etcd record-registration + key-provisioning tool
 │   └── jwt-tools/             # JWT generator (EdDSA, ES256, RS256)
 │
@@ -52,9 +52,9 @@ evaluation orchestration, and the paper's raw data.
 │   └── run.sh                 # main entry point: bench, compare, test
 └── misc/                      # helpers for paper figures and tables
     ├── gen-microbench-dat.py  # parses go-test bench output → paper Fig 3 input
-    ├── gen-rsa-comparison.py  # combines bench output → paper Table 2
-    ├── measure-packet-sizes.sh # one-shot per-approach driver → paper Table 1
-    └── table1-reproduce.md    # step-by-step Table 1 reproduction notes
+    ├── gen-rsa-comparison.py  # combines bench output → paper Table 4
+    ├── measure-packet-sizes.sh # one-shot per-approach driver → paper Table 3
+    └── table1-reproduce.md    # step-by-step paper Table 3 reproduction notes
 ```
 
 ## Quickstart
@@ -89,12 +89,12 @@ walkthrough) is at `docs/artifact-doc/artifact.pdf`; rebuild from the
 
 | Paper artifact | Source |
 |---|---|
-| Table 1 — Packet expansion | `misc/measure-packet-sizes.sh`; see `misc/table1-reproduce.md` |
-| Fig 3 — Microbench crypto latency | `misc/gen-microbench-dat.py` + `experiments/results/...` (raw) |
-| Table 2 — Calypso vs RSA-3072 | `misc/gen-rsa-comparison.py` |
-| Fig 4 — End-to-end CDF (UDP) | `experiments/run.sh compare plain-udp jwt-udp ...` |
-| Fig 5 — End-to-end CDF (DoH) | `experiments/run.sh compare plain jwt enclave-jwt wkdibe calypso ...` |
-| Fig 6 — Latency percentiles | `experiments/scripts/plot/plot-percentiles.py` |
+| Table 3 — Packet expansion | `misc/measure-packet-sizes.sh`; see `misc/table1-reproduce.md` |
+| Fig 1 — Microbench crypto latency | `misc/gen-microbench-dat.py` + `experiments/results/...` (raw) |
+| Table 4 — Calypso vs RSA-3072 | `misc/gen-rsa-comparison.py` |
+| Fig 2 — End-to-end CDF (UDP) | `experiments/run.sh compare plain-udp jwt-udp ...` |
+| Fig 3 — End-to-end CDF (DoH) | `experiments/run.sh compare plain jwt enclave-jwt wkdibe calypso ...` |
+| Fig 4 — Latency percentiles | `experiments/scripts/plot/plot-percentiles.py` |
 
 ## Badges
 

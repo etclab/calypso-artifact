@@ -64,42 +64,43 @@ relative ordering and curve shapes should match.
 
 ---
 
-## Step 4 — Packet expansion (paper Table 1) (≈5 min)
+## Step 4 — Packet expansion (paper Table 3) (≈5 min)
 
 See `misc/table1-reproduce.md` for the per-approach `q --measure-sizes`
 invocations. Each prints `dns_req=N dns_resp=M` for one query; collating
-across 4 approaches reproduces Table 1 columns.
+across 4 approaches reproduces paper Table 3 (file name is historical:
+this corresponds to "Table 1" in earlier drafts).
 
 **Demonstrates:** the cost of carrying the obfuscated name + ciphertext
 in the EDNS OPT record relative to plain DNS.
 
 ---
 
-## Step 5 — Microbenchmarks (paper Fig 3 + Table 2) (≈15 min)
+## Step 5 — Microbenchmarks (paper Fig 1 + Table 4) (≈15 min)
 
 The Calypso library is the standalone module
 [`github.com/etclab/calypso`](https://github.com/etclab/calypso); its
-test-bench is what produces the Fig 3 numbers. Clone the `v0.1.0` tag
+test-bench is what produces the Fig 1 numbers. Clone the `v0.1.0` tag
 and run it directly:
 
 ```bash
 ARTIFACT=$(pwd)   # run this from the artifact root
 
-# Calypso operations vs. number of labels (paper Fig 3 source)
+# Calypso operations vs. number of labels (paper Fig 1 source)
 git clone --branch v0.1.0 --depth 1 https://github.com/etclab/calypso /tmp/calypso
 cd /tmp/calypso
 go test -bench=. -benchmem -run=^$ ./... > /tmp/calypso-bench.txt
 python3 "$ARTIFACT/misc/gen-microbench-dat.py" /tmp/calypso-bench.txt > /tmp/calypso-bench.dat
 
-# RSA-3072 baseline (paper Table 2)
+# RSA-3072 baseline (paper Table 4)
 cd "$ARTIFACT/src/cryptofun"
 go test -bench=. -benchmem -run=^$ ./... > /tmp/rsa-bench.txt
 python3 ../../misc/gen-rsa-comparison.py /tmp/calypso-bench.txt /tmp/rsa-bench.txt
 ```
 
 **Expected:** monotonically increasing crypto cost with label count
-(matches Fig 3); RSA comparison table prints 5 rows whose ratio columns
-should be in the same range as paper Table 2 (Encrypt: 40–60×, Verify:
+(matches Fig 1); RSA comparison table prints 5 rows whose ratio columns
+should be in the same range as paper Table 4 (Encrypt: 40–60×, Verify:
 30–45×).
 
 ---
