@@ -111,11 +111,25 @@ fi
 
 # Build ego - only if -with-ego flag is set
 if [ "$INCLUDE_EGO" = true ]; then
+    # Pre-generate the AES key and TLS cert that enclave-eval.json embeds
+    # into the signed enclave. start.sh would otherwise generate these at
+    # runtime, but ego sign needs them at build time. Idempotent: keep the
+    # existing key if one is already there so we do not invalidate any
+    # records etcd-client has encrypted under it.
+    ENCLAVE_DIR="$WORKSPACE/approaches/enclave"
+    mkdir -p "$ENCLAVE_DIR"
+    if [ ! -f "$ENCLAVE_DIR/aes.key" ]; then
+        echo "  → Pre-generating enclave embed files (aes.key, cert.pem, key.pem)..."
+        openssl rand -out "$ENCLAVE_DIR/aes.key" 32
+        ( cd "$ENCLAVE_DIR" && bash "$WORKSPACE/repos/coredns/gen_certs.sh" ) >/dev/null
+        echo "    ✓ embed files ready in $ENCLAVE_DIR"
+    fi
+
     echo "  → Building coredns with ego..."
     cd coredns
     make ego-eval
     cp coredns-ego "$WORKSPACE/build/coredns"
-    echo "    ✓ $WORKSPACE/build/coredns" 
+    echo "    ✓ $WORKSPACE/build/coredns"
     cd - > /dev/null
 fi
 
